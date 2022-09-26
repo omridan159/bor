@@ -418,6 +418,8 @@ func (pool *TxPool) add(ctx context.Context, tx *types.Transaction) error {
 		// Notify the subscribers. This event is posted in a goroutine
 		// because it's possible that somewhere during the post "Remove transaction"
 		// gets called which will then wait for the global tx pool lock and deadlock.
+
+		fmt.Println("FIRST OE CONSOLE.LOG ======>", tx.Hash())
 		go pool.txFeed.Send(core.NewTxsEvent{Txs: types.Transactions{tx}})
 	}
 
@@ -440,7 +442,7 @@ func (pool *TxPool) Add(ctx context.Context, tx *types.Transaction) error {
 		return err
 	}
 
-	fmt.Println("OE CONSOLE.LOG ======>", tx.Hash())
+	fmt.Println("SECOND OE CONSOLE.LOG ======>", tx.Hash())
 	pool.relay.Send(types.Transactions{tx})
 
 	pool.chainDb.Put(tx.Hash().Bytes(), data)
