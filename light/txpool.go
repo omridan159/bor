@@ -395,6 +395,7 @@ func (pool *TxPool) validateTx(ctx context.Context, tx *types.Transaction) error
 // add validates a new transaction and sets its state pending if processable.
 // It also updates the locally stored nonce if necessary.
 func (pool *TxPool) add(ctx context.Context, tx *types.Transaction) error {
+	log.Info("OE afasfasfasf LOGS ==> light add")
 	hash := tx.Hash()
 
 	if pool.pending[hash] != nil {
@@ -429,6 +430,7 @@ func (pool *TxPool) add(ctx context.Context, tx *types.Transaction) error {
 // Add adds a transaction to the pool if valid and passes it to the tx relay
 // backend
 func (pool *TxPool) Add(ctx context.Context, tx *types.Transaction) error {
+	log.Info("OE afasfasfasf LOGS ==> light Add")
 	pool.mu.Lock()
 	defer pool.mu.Unlock()
 	data, err := tx.MarshalBinary()
