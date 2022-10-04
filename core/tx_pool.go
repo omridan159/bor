@@ -436,6 +436,7 @@ func (pool *TxPool) Stop() {
 // SubscribeNewTxsEvent registers a subscription of NewTxsEvent and
 // starts sending event to the given channel.
 func (pool *TxPool) SubscribeNewTxsEvent(ch chan<- NewTxsEvent) event.Subscription {
+	log.Info("🟠 ~ file: tx_pool.go ~ line 439 ~ SubscribeNewTxsEvent")
 	return pool.scope.Track(pool.txFeed.Subscribe(ch))
 }
 
@@ -662,7 +663,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 // out of the pool due to pricing constraints.
 func (pool *TxPool) add(tx *types.Transaction, local bool) (replaced bool, err error) {
 	// If the transaction is already known, discard it
-	log.Info("OE LOG ====> add()")
+	log.Info("🟠 ~ file: tx_pool.go ~ line 666 ~ func ~ add")
 	hash := tx.Hash()
 	if pool.all.Get(hash) != nil {
 		log.Trace("Discarding already known transaction", "hash", hash)
