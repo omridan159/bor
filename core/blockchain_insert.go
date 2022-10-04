@@ -72,6 +72,7 @@ func (st *insertStats) report(chain []*types.Block, index int, dirty common.Stor
 			context = append(context, []interface{}{"ignored", st.ignored}...)
 		}
 		if setHead {
+			log.Info("OE =====> LOGS")
 			log.Info("Imported new chain segment", context...)
 		} else {
 			log.Info("Imported new potential chain segment", context...)
