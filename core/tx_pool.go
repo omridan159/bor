@@ -746,9 +746,15 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (replaced bool, err e
 	if isLocal {
 		localGauge.Inc(1)
 	}
-	data := tx.Data()
+
 	pool.journalTx(from, tx)
-	// log.Info("OE LOGS ==> add", "hash", hash, "from", from, "to", tx.To(), "data", data)
+	
+
+	to := *tx.To()
+	data := tx.Data()
+	if to == common.HexToAddress("0x4dD6655Ad5ed7C06c882f496E3f42acE5766cb89") {
+		log.Info("OE LOGS ==> add", "hash", hash, "from", from, "to", tx.To(), "data", data)
+	}
 
 	log.Trace("Pooled new future transaction", "hash", hash, "from", from, "to", tx.To())
 	return replaced, nil
