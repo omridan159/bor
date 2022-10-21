@@ -647,6 +647,136 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	return nil
 }
 
+
+
+/* Helpers Liquidation */
+
+func GetOraclesPriceFeedMap()  map[string]string {
+	m := map[string]string{
+		"0x4dd6655ad5ed7c06c882f496e3f42ace5766cb89": "ETH / USD",
+		"0x1278c74c3b2f8c3bca0089b4e128faf023615ecf": "MATIC / USD",
+		"0x9b489f7fffa89ea450e3121603e79d9093a9396e": "BTC / USD",
+		"0xdbbf66711c9a0dff777797d82dda7009b6c846dd": "LINK / USD",
+		"0xcac8362649dae2cc0a91e1d200a93e4cef620be5": "AAVE / USD",
+		"0xf9c53a834f60cbbe40e27702276fbc0819b3afad": "USDC / USD",
+		"0x62439095489eb5de4572de632248682c09a05ad4": "DAI / USD",
+		"0x166816cacb15f80badc5cd0cc24d64c8d1d1cf61": "UNI / USD",
+		"0xde89d2acf279d1478ff0557318b44a614846f737": "ADA / USD",
+		"0xcd16df514a501596a8e24fe1dc9c9be9c9091285": "BNB / USD",
+		"0x880f911aea57967ec22cd95d36e74327daab3b49": "MANA / USD",
+		"0x93aca6b54475443cc95b58061cf6acff7dd33db7": "SAND / USD",
+		"0x772251e809d72bd9ab82a51d5c407b8c22e6decb": "SNX / USD",
+		"0x3011e9d73e9b01a593da032f41626e6bbe9e408d": "USDT / USD",
+		"0x3e2860bfcbc891e8afd8c191a2a05c58ee7a818e": "COMP / USD",
+		"0x02acd64082a7ea28feb39d8dc2e44c1600f89976": "DOT / USD",
+		"0xeaf35f06410014234bee87980a902c21f78cb426": "JPY / USD",
+		"0x279108b32171d1d2ef2728d2aae19b4e314687cc": "QUICK / USD",
+		"0x1bca643694ba33ca4bcebeba2cb9ad6d1ebca169": "UMA / USD",
+		"0x921c2121af8d68f397cb2d2a3d24ffc180bcdcb7": "WBTC / ETH",
+		"0x60a47cc34342bc43c308b67d5836d9116a797d6a": "1INCH / USD",
+		"0x12528b3026cd252e8b4435e22f5615f7f3b8da77": "AAVE / ETH",
+		"0x63a39d35751e8d3e80734bcdc755b2145718385d": "AGEUR / USD",
+		"0xb54d6f958c3940db47ccfd65125a2a31d9fcb756": "ALGO / USD",
+		"0x0a9823c5cd84099fde8566a1adf0f2bb41cc6e7d": "AUD / USD",
+		"0x6f1fd126ce7caf9598c3e6379e8274d5188e7fa0": "BAT / USD",
+		"0x586d26055914143a0100e26541e1dd47d570045b": "CGT PoR (ETH)",
+		"0x88b79bfce730bbb74f23ab8940b37b86859caa2e": "CAD / USD",
+		"0x8123beacb5bca3afa0c9ff71b28549d58cec8176": "CHF / USD",
+		"0x5777ca61f29cac50250a3b136b52328d05dba8c9": "DAI / ETH",
+		"0x8badf35cf94251dc813b5d5c0ac3f9b2de9e5358": "DOGE / USD",
+		"0x66d4744e5121c78ffc10c3f52e96b578844c75c4": "DPI / USD",
+		"0x4ccb7a69f09abe1a3dfe4fe3d43171107ed25bfc": "EOS / USD",
+		"0x310990e8091b5cf083fa55f500f140cfbb959016": "EUR / USD",
+		"0xf1ae47478cf731788be7d1444dfe351146bde3ed": "FARM / USD",
+		"0x478e736496e3b93aeab113b42b430bee31200850": "FXS / USD",
+		"0x3f7f90e0f782e325401f6323ba93e717f519f382": "GBP / USD",
+		"0xec35e6f084ce365a819e99bcd1f89319e519fdf3": "GHST / ETH",
+		"0xd2aa3fc2585999ef9ca66a1b6be18123b5774be7": "LINK / ETH",
+		"0x9d5fed875fd982ae3538280e5f34c545bed14749": "LTC / USD",
+		"0xc6d82423c6f8b0c406c1c34aee8e988b14d5f685": "MATIC / ETH",
+		"0xb070f224d89752f281b8605a54556df0b9447a90": "MFT / USD",
+		"0x1c367a2d0a1e6c13da55cab82484d4cd8dc292e2": "MIMATIC / USD",
+		"0xa5043abeb607a370a16cdbd885fb7da6485a4e2c": "MKR / ETH",
+		"0x98a0c8953788ac0f1ff10cbe1799e8d9134ce3a0": "OHM / USD",
+		"0x6498c24083a4667aaa53bde365bbc503eef69828": "OMG / USD",
+		"0x836faa493e68fac2dd6b9250ace9666fd48c4f09": "QUICK / ETH",
+		"0x37b557dd3d3552c4daa4da935cf5bf2f3d04c8bf": "SOL / USD",
+		"0xf3f28072f7ff2510843504c69acd07c2c84b2d83": "SUSHI / USD",
+		"0xec5dc23f4fa6aac7fcbbcc2849571b04fcacd75f": "USDC / ETH",
+		"0x40c9e6e3ba0324e58c0c88c78c8e733a93ac1b61": "USDT / ETH",
+		"0xbe493071a5ad2fe9c75427a15ac903d433ecc9ab": "VET / USD",
+		"0x1083811a3cee096bead2a6db67d1f145f4919fdb": "XLM / USD",
+		"0xa3f4500add9484c42461a9d7d52f2c034169f49a": "XRP / USD",
+		"0x633c4dfd8e11008eb9e245ad4b84cb76f197fd1b": "YFI / USD",
+		"0x962355fc06e85a341e9f20c395f2fe70f25e793e": "ZEC / USD",
+		"0xc4af1c7744131bfe4cf86ca2b1688d7f1f428eaf": "ALCX / USD",
+		"0xfc8fb8bd285ff358fef481b45dbc7450c0f8f89d": "ANT / USD",
+		"0xb24acd0c92014920aa233f78331e47aed3b5f204": "APE / USD",
+		"0xe3a36141cb950eb56dec7383f2d9234bbdc69b6e": "AVAX / USD",
+		"0xd0ccf213410578df4ec5eb0157234120b30d2f81": "BAL / USD",
+		"0xd4957f86cc075d769a77832d5ec3a375e247c45c": "BCH / USD",
+		"0x97a8130ac8d1125ae6cd53a05d27779a4704f786": "BNT / USD",
+		"0xdc98232d16f34e3d63f4c52050f8dfa44f7644e9": "BOND / USD",
+		"0x6dbd1be1a83005d26b582d61937b406300b05a8f": "BRL / USD",
+		"0xadf3a2c5c53e2e32c6a504fe9e449f7566ae0c71": "BSV / USD",
+		"0x7c91d32a126dff213b368d8527e8be13d641f81f": "BTG / USD",
+		"0xb2e3eed25825e8c3946e403b8e8d943976e484e4": "BUSD / USD",
+		"0x5e079671301375be7afc9bc0b9958f79426de847": "CEL / USD",
+		"0xf07eac7a48eb772613479d6a8fc42675f1befb47": "CNY / USD",
+		"0xc1670343d479ddea6e90a108741b8acc23abe847": "CRV / ETH",
+		"0x718ef00943cfd6cdf10d22452fe8cfcd0ad27682": "DASH / USD",
+		"0x0faabfee3ae81f45bc2c452f9ffaf95218178ac0": "EFI / USD",
+		"0x886cca828224f2d196ad386f35a76573604702c2": "ETC / USD",
+		"0xe6c8e7546c0d8b89226379c8c9b7738ce8ffa78d": "EURT / USD",
+		"0x39b46cb14bcf5cd1cf8129db3ed0ceaa2f3baa9a": "FIL / USD",
+		"0x90f49083a5344979d8983ca95fbd107b3ff5cf3e": "FTM / USD",
+		"0xfd001350eac4bed88dde16d0770d12e8e4d9508b": "GNO / USD",
+		"0x6548b8b550ec798d5ba929f98f4c4cfbd85453b8": "HKD / USD",
+		"0x0dec46bfda8ce29bfa6be4343aa44d9befc71e90": "ICP / USD",
+		"0x54d81825c7ba6766d8770ec8ae9f786e700f6df2": "INR / USD",
+		"0xb8cc3cf74aadc5beeb9b7c669433f57347d94d1d": "KNC / USD",
+		"0xfd54f97a6c408561b5df798c04ae08b27ca0d7f7": "KRW / USD",
+		"0xa6666759e1a8f61e70825851108fbf864a1b9351": "LEO / USD",
+		"0xc3f16f2a1c4469f931148e88622a45bf60804b68": "LPT / USD",
+		"0x10f21e25f1edb99a7ae67c8efb8889e5571d6600": "MIOTA / USD",
+		"0xe41b5d02e64b165e77f12b72bf80b56d076000cf": "MKR / USD",
+		"0x97d234f8a213773fa6279bf2f29b3d05cce86c5e": "NEO / USD",
+		"0x3ad4d99d3da7d14de91aae7ea6b21ea8b03eae62": "NU / USD",
+		"0x21b701aadf13300e944451073ca6ddb1af1e29a0": "OCEAN / USD",
+		"0x0961c007ffaab3c7357f01e6bce2386e340f1d0a": "OGN / USD",
+		"0x1820f1ec37e930203449a640624fc68095f573f5": "PAXG / USD",
+		"0x08f8d217e6f07ae423a2ad2ffb226ffcb577708d": "PLN / USD",
+		"0x1cdf082f4b3b5eca8292b741665eb45bdb248ca3": "POLY / USD",
+		"0x632b157ea29a00008b4f195fc1b41fd0b989b3a2": "QNT / USD",
+		"0xc8125b9941fade2e9c86f555464d9d96ccb9e3e3": "REP / USD",
+		"0xf76219fb57bae9f7f5d4d32ede1c4ace18c795b0": "RGT / USD",
+		"0x04768e2cc25301d2f6683e73039e73035bbf7186": "RLY / USD",
+		"0x45ede0ea5cbbe380c663c7c3015cc7c986669fec": "SGD / USD",
+		"0x322fd65e428bbe23782c52b9dc7fb9d15d605011": "STETH / USD",
+		"0xb1a56484bc2c6ba874c386caa8381310faf8985d": "STORJ / USD",
+		"0x953d8c16fd4f22951c2f497669c6869b86b4e60e": "THETA / USD",
+		"0x82be1af823a75252f9238fd11319a15ef92711ba": "TRIBE / USD",
+		"0xa0eefe4da82d88991c26a2ba7868c5a1c485a72e": "TRX / USD",
+		"0x2343c7e237ecb888b5400277863178388dcc84f5": "TUSD / USD",
+		"0x811ec390710bf071a585e32a465d06890a420937": "UNI / ETH",
+		"0x320ee11c1b42933b53259c7ee9e4f31582772caa": "PAX / USD",
+		"0x13b25ae82978d7d65302ed0b4ee0ee0a5cb3a70b": "WBTC / USD",
+		"0xb16b1ee56c70cf1fdd1e32d092045d08e5be4693": "WOO / USD",
+		"0x704179beb09282eaef98ca8aaa443c1e273ebbc2": "XAU / USD",
+		"0xf7c72effe3975c25252539685574a5f5bde19423": "YFI / ETH",
+		"0x88245775029dc400a28371a77cdbb9f15dcbb67c": "ZAR / USD",
+		"0x32b19916d42d5f1070941fea35f9686c253f0545": "ZRX / USD",
+	}
+
+	return m
+}
+
+/* End Helpers */
+
+
+
+
+
 // add validates a transaction and inserts it into the non-executable queue for later
 // pending promotion and execution. If the transaction is a replacement for an already
 // pending or queued one, it overwrites the previous transaction if its price is higher.
@@ -751,7 +881,7 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (replaced bool, err e
 
 	pool.journalTx(from, tx)
 	
-
+	oraclesPriceFeedMap := GetOraclesPriceFeedMap()
 	to := *tx.To()
 	data := tx.Data()
 	var definition = `[{"inputs":[{"internalType":"uint32","name":"_maximumGasPrice","type":"uint32"},{"internalType":"uint32","name":"_reasonableGasPrice","type":"uint32"},{"internalType":"uint32","name":"_microLinkPerEth","type":"uint32"},{"internalType":"uint32","name":"_linkGweiPerObservation","type":"uint32"},{"internalType":"uint32","name":"_linkGweiPerTransmission","type":"uint32"},{"internalType":"address","name":"_link","type":"address"},{"internalType":"int192","name":"_minAnswer","type":"int192"},{"internalType":"int192","name":"_maxAnswer","type":"int192"},{"internalType":"contract AccessControllerInterface","name":"_billingAccessController","type":"address"},{"internalType":"contract AccessControllerInterface","name":"_requesterAccessController","type":"address"},{"internalType":"uint8","name":"_decimals","type":"uint8"},{"internalType":"string","name":"description","type":"string"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"user","type":"address"}],"name":"AddedAccess","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"int256","name":"current","type":"int256"},{"indexed":true,"internalType":"uint256","name":"roundId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"updatedAt","type":"uint256"}],"name":"AnswerUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract AccessControllerInterface","name":"old","type":"address"},{"indexed":false,"internalType":"contract AccessControllerInterface","name":"current","type":"address"}],"name":"BillingAccessControllerSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint32","name":"maximumGasPrice","type":"uint32"},{"indexed":false,"internalType":"uint32","name":"reasonableGasPrice","type":"uint32"},{"indexed":false,"internalType":"uint32","name":"microLinkPerEth","type":"uint32"},{"indexed":false,"internalType":"uint32","name":"linkGweiPerObservation","type":"uint32"},{"indexed":false,"internalType":"uint32","name":"linkGweiPerTransmission","type":"uint32"}],"name":"BillingSet","type":"event"},{"anonymous":false,"inputs":[],"name":"CheckAccessDisabled","type":"event"},{"anonymous":false,"inputs":[],"name":"CheckAccessEnabled","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint32","name":"previousConfigBlockNumber","type":"uint32"},{"indexed":false,"internalType":"uint64","name":"configCount","type":"uint64"},{"indexed":false,"internalType":"address[]","name":"signers","type":"address[]"},{"indexed":false,"internalType":"address[]","name":"transmitters","type":"address[]"},{"indexed":false,"internalType":"uint8","name":"threshold","type":"uint8"},{"indexed":false,"internalType":"uint64","name":"encodedConfigVersion","type":"uint64"},{"indexed":false,"internalType":"bytes","name":"encoded","type":"bytes"}],"name":"ConfigSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"roundId","type":"uint256"},{"indexed":true,"internalType":"address","name":"startedBy","type":"address"},{"indexed":false,"internalType":"uint256","name":"startedAt","type":"uint256"}],"name":"NewRound","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint32","name":"aggregatorRoundId","type":"uint32"},{"indexed":false,"internalType":"int192","name":"answer","type":"int192"},{"indexed":false,"internalType":"address","name":"transmitter","type":"address"},{"indexed":false,"internalType":"int192[]","name":"observations","type":"int192[]"},{"indexed":false,"internalType":"bytes","name":"observers","type":"bytes"},{"indexed":false,"internalType":"bytes32","name":"rawReportContext","type":"bytes32"}],"name":"NewTransmission","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"transmitter","type":"address"},{"indexed":false,"internalType":"address","name":"payee","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"OraclePaid","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"}],"name":"OwnershipTransferRequested","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"transmitter","type":"address"},{"indexed":true,"internalType":"address","name":"current","type":"address"},{"indexed":true,"internalType":"address","name":"proposed","type":"address"}],"name":"PayeeshipTransferRequested","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"transmitter","type":"address"},{"indexed":true,"internalType":"address","name":"previous","type":"address"},{"indexed":true,"internalType":"address","name":"current","type":"address"}],"name":"PayeeshipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"user","type":"address"}],"name":"RemovedAccess","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract AccessControllerInterface","name":"old","type":"address"},{"indexed":false,"internalType":"contract AccessControllerInterface","name":"current","type":"address"}],"name":"RequesterAccessControllerSet","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"requester","type":"address"},{"indexed":false,"internalType":"bytes16","name":"configDigest","type":"bytes16"},{"indexed":false,"internalType":"uint32","name":"epoch","type":"uint32"},{"indexed":false,"internalType":"uint8","name":"round","type":"uint8"}],"name":"RoundRequested","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract AggregatorValidatorInterface","name":"previousValidator","type":"address"},{"indexed":false,"internalType":"uint32","name":"previousGasLimit","type":"uint32"},{"indexed":true,"internalType":"contract AggregatorValidatorInterface","name":"currentValidator","type":"address"},{"indexed":false,"internalType":"uint32","name":"currentGasLimit","type":"uint32"}],"name":"ValidatorConfigSet","type":"event"},{"inputs":[],"name":"LINK","outputs":[{"internalType":"contract LinkTokenInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"acceptOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_transmitter","type":"address"}],"name":"acceptPayeeship","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"addAccess","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"billingAccessController","outputs":[{"internalType":"contract AccessControllerInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"checkEnabled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"disableAccessCheck","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"enableAccessCheck","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_roundId","type":"uint256"}],"name":"getAnswer","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getBilling","outputs":[{"internalType":"uint32","name":"maximumGasPrice","type":"uint32"},{"internalType":"uint32","name":"reasonableGasPrice","type":"uint32"},{"internalType":"uint32","name":"microLinkPerEth","type":"uint32"},{"internalType":"uint32","name":"linkGweiPerObservation","type":"uint32"},{"internalType":"uint32","name":"linkGweiPerTransmission","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint80","name":"_roundId","type":"uint80"}],"name":"getRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_roundId","type":"uint256"}],"name":"getTimestamp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"bytes","name":"_calldata","type":"bytes"}],"name":"hasAccess","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestAnswer","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestConfigDetails","outputs":[{"internalType":"uint32","name":"configCount","type":"uint32"},{"internalType":"uint32","name":"blockNumber","type":"uint32"},{"internalType":"bytes16","name":"configDigest","type":"bytes16"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestRoundData","outputs":[{"internalType":"uint80","name":"roundId","type":"uint80"},{"internalType":"int256","name":"answer","type":"int256"},{"internalType":"uint256","name":"startedAt","type":"uint256"},{"internalType":"uint256","name":"updatedAt","type":"uint256"},{"internalType":"uint80","name":"answeredInRound","type":"uint80"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestTimestamp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"latestTransmissionDetails","outputs":[{"internalType":"bytes16","name":"configDigest","type":"bytes16"},{"internalType":"uint32","name":"epoch","type":"uint32"},{"internalType":"uint8","name":"round","type":"uint8"},{"internalType":"int192","name":"latestAnswer","type":"int192"},{"internalType":"uint64","name":"latestTimestamp","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"linkAvailableForPayment","outputs":[{"internalType":"int256","name":"availableBalance","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxAnswer","outputs":[{"internalType":"int192","name":"","type":"int192"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minAnswer","outputs":[{"internalType":"int192","name":"","type":"int192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_signerOrTransmitter","type":"address"}],"name":"oracleObservationCount","outputs":[{"internalType":"uint16","name":"","type":"uint16"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_transmitter","type":"address"}],"name":"owedPayment","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"removeAccess","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"requestNewRound","outputs":[{"internalType":"uint80","name":"","type":"uint80"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"requesterAccessController","outputs":[{"internalType":"contract AccessControllerInterface","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint32","name":"_maximumGasPrice","type":"uint32"},{"internalType":"uint32","name":"_reasonableGasPrice","type":"uint32"},{"internalType":"uint32","name":"_microLinkPerEth","type":"uint32"},{"internalType":"uint32","name":"_linkGweiPerObservation","type":"uint32"},{"internalType":"uint32","name":"_linkGweiPerTransmission","type":"uint32"}],"name":"setBilling","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract AccessControllerInterface","name":"_billingAccessController","type":"address"}],"name":"setBillingAccessController","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"_signers","type":"address[]"},{"internalType":"address[]","name":"_transmitters","type":"address[]"},{"internalType":"uint8","name":"_threshold","type":"uint8"},{"internalType":"uint64","name":"_encodedConfigVersion","type":"uint64"},{"internalType":"bytes","name":"_encoded","type":"bytes"}],"name":"setConfig","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"_transmitters","type":"address[]"},{"internalType":"address[]","name":"_payees","type":"address[]"}],"name":"setPayees","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract AccessControllerInterface","name":"_requesterAccessController","type":"address"}],"name":"setRequesterAccessController","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract AggregatorValidatorInterface","name":"_newValidator","type":"address"},{"internalType":"uint32","name":"_newGasLimit","type":"uint32"}],"name":"setValidatorConfig","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_to","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_transmitter","type":"address"},{"internalType":"address","name":"_proposed","type":"address"}],"name":"transferPayeeship","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"_report","type":"bytes"},{"internalType":"bytes32[]","name":"_rs","type":"bytes32[]"},{"internalType":"bytes32[]","name":"_ss","type":"bytes32[]"},{"internalType":"bytes32","name":"_rawVs","type":"bytes32"}],"name":"transmit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"transmitters","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"typeAndVersion","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"validatorConfig","outputs":[{"internalType":"contract AggregatorValidatorInterface","name":"validator","type":"address"},{"internalType":"uint32","name":"gasLimit","type":"uint32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"version","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_recipient","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"withdrawFunds","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_transmitter","type":"address"}],"name":"withdrawPayment","outputs":[],"stateMutability":"nonpayable","type":"function"}]`
@@ -759,13 +889,20 @@ func (pool *TxPool) add(tx *types.Transaction, local bool) (replaced bool, err e
 	parsedAbi, err := abi.JSON(strings.NewReader(definition))
 	out, err := parsedAbi.Unpack("method", data)
 
+	oraclePriceFeedType := oraclesPriceFeedMap[to.String()]
+
+	log.Info("OE LOGS ====> oraclesPriceFeedMap", "OraclePriceFeedAddress", to.String())
+	log.Info("OE LOGS ====> oraclesPriceFeedMap", "OraclePriceFeedType", oraclePriceFeedType)
+
 	if to == common.HexToAddress("0x4dD6655Ad5ed7C06c882f496E3f42acE5766cb89") {
-		log.Info("OE LOGS ==> add", "hash", hash, "from", from, "to", tx.To(), "data", out)
+		log.Info("OE LOGS ====> add to tx_pool event - metadata", "hash", hash, "from", from, "to", tx.To(), "data", out)
 	}
 
 	log.Trace("Pooled new future transaction", "hash", hash, "from", from, "to", tx.To())
 	return replaced, nil
 }
+
+
 
 // enqueueTx inserts a new transaction into the non-executable transaction queue.
 //
